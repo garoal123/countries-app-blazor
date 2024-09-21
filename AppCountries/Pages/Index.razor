@@ -1,0 +1,47 @@
+﻿@page "/Index"
+@inject IJSRuntime JSRuntime
+@using System.Text.Json
+@using BlazorLogin.Shared
+<PageTitle>Index</PageTitle>
+
+@if (documentData != null)
+{
+    <div>
+        <p><strong>Nombre:</strong> @documentData.Nombre</p>
+        <p><strong>Apellido:</strong> @documentData.Apellidos</p>
+        <p><strong>Continente:</strong> @documentData.Continente</p>
+    </div>
+}
+else
+{
+    <p>Cargando datos...</p>
+}
+
+@code {
+    private UserDocument documentData;
+
+   private async Task LoadDocument(string documentId)
+    {
+        Console.WriteLine($"Cargando documento de la colección: Usuarios, ID: {documentId}");
+
+        var result = await JSRuntime.InvokeAsync<string>("getDocumentById", documentId);
+
+        Console.WriteLine($"Resultado de Firestore: {result}");
+
+        // Deserializa el resultado al objeto UserDocument
+        try
+        {
+            documentData = JsonSerializer.Deserialize<UserDocument>(result);
+            Console.WriteLine($"Datos deserializados: {documentData.Nombre}, {documentData.Apellidos}, {documentData.Continente}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Error al deserializar: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDocument("OirTrOZebBSzpB5JfxDEgtoJFJ33"); // Reemplaza con el ID real del documento
+    }
+}

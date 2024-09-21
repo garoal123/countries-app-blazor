@@ -1,0 +1,101 @@
+﻿@page "/"
+@layout LoginLayout
+@inject HttpClient httpClient
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@using System.Text.Json;
+@using BlazorLogin.Shared
+@using BlazorLogin.Components  <!-- Asegúrate de usar el namespace correcto -->
+@inject FirebaseService FirebaseService
+<div class="login-container">
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <h3>LOGIN</h3>
+        </div>
+
+        <EditForm Model="login" OnValidSubmit="Logins">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label>Correo</label>
+                <InputText @bind-Value="login.Correo" class="form-control" />
+                <ValidationMessage For="@(() => login.Correo)" />
+            </div>
+
+            <div class="mb-3">
+                <label>Contraseña</label>
+                <InputText type="password" @bind-Value="login.Clave" class="form-control" />
+                <ValidationMessage For="@(() => login.Clave)" />
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </div>
+        </EditForm>
+
+        <div class="mb-3">
+            <button @onclick="ShowPopup" class="btn btn-primary btn-block">Registro</button>
+        </div>
+    </div>
+
+    <RegisterComponent IsVisible="@showPopup" Title="Registro" Message="" OnClose="HandleClose" />
+</div>
+
+@code {
+    private LoginDTO login = new LoginDTO();
+
+    private async Task LoginUser()
+    {
+        var jsonResult = await JS.InvokeAsync<string>("loginWithEmailPassword", login.Correo, login.Clave);
+
+        // Deserializar el resultado
+        var userResult = JsonSerializer.Deserialize<LoginResult>(jsonResult);
+
+        if (userResult.error != null)
+        {
+            // Maneja el error
+            Console.WriteLine($"Error: {userResult.error}");
+        }
+        else
+        {
+            // Maneja el usuario autenticado
+            Console.WriteLine($"User ID: {userResult.uid}");
+            Navigation.NavigateTo("/Index");
+        }
+    }
+
+    private async Task Logins()
+    {
+        var result = await FirebaseService.LoginWithEmailPasswordAsync(login.Correo, login.Clave);
+        // Manejar el resultado
+        Console.WriteLine(result);
+        // Deserializar el resultado
+        var userResult = JsonSerializer.Deserialize<LoginResult>(result);
+
+        if (userResult.error != null)
+        {
+            // Maneja el error
+            Console.WriteLine($"Error: {userResult.error}");
+        }
+        else
+        {
+            // Maneja el usuario autenticado
+            Console.WriteLine($"User ID: {userResult.uid}");
+            Navigation.NavigateTo("/Index");
+        }
+        
+    }
+
+    private bool showPopup = false;
+
+    private void ShowPopup()
+    {
+        showPopup = true;
+    }
+
+    private void HandleClose(bool isVisible)
+    {
+        showPopup = isVisible;
+    }
+}

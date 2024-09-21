@@ -1,0 +1,117 @@
+﻿@namespace BlazorLogin.Components
+@inject IJSRuntime JS
+@inject SweetAlertService Swal
+<div class="popup-overlay" @onclick="ClosePopup" style="display:@(IsVisible ? "flex" : "none")">
+    <div class="popup-content" @onclick:stopPropagation>
+        <button @onclick="ClosePopup" class="close-button">X</button>
+        <h3>@Title</h3>
+        <div class="form-scroll-container">
+            <EditForm Model="register" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label>Nombre</label>
+                    <InputText @bind-Value="register.Nombre" class="form-control" />
+                    <ValidationMessage For="@(() => register.Nombre)" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Apellidos</label>
+                    <InputText @bind-Value="register.Apellidos" class="form-control" />
+                    <ValidationMessage For="@(() => register.Apellidos)" />
+                </div>
+
+                <!--div class="mb-3">
+                    <label>Teléfono</label>
+                    <InputText @bind-Value="register.Telefono" class="form-control" />
+                    <ValidationMessage For="@(() => register.Telefono)" />
+                </div-->
+
+                <div class="mb-3">
+                    <label>Correo</label>
+                    <InputText @bind-Value="register.Correo" type="email" class="form-control" />
+                    <ValidationMessage For="@(() => register.Correo)" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Contraseña</label>
+                    <InputText @bind-Value="register.Contrasena" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => register.Contrasena)" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Confirmar Contraseña</label>
+                    <InputText @bind-Value="register.ConfirmarContrasena" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => register.ConfirmarContrasena)" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Continente</label>
+                    <InputSelect @bind-Value="register.Continente" class="form-control">
+                        <option value="">Seleccione un continente</option>
+                        <option value="Asia">Asia</option>
+                        <option value="Europa">Asia</option>
+                        <option value="América">Americas</option>
+                        <option value="África">Africa</option>
+                        <option value="Oceanía">Antarctic</option>
+                        <option value="Oceanía">Oceania</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => register.Continente)" />
+                </div>
+
+                <!--div class="mb-3">
+                    <label>País</label>
+                    <InputText @bind-Value="register.Pais" class="form-control" />
+                    <ValidationMessage For="@(() => register.Pais)" />
+                </div-->
+
+                <div class="mb-3">
+                    <div class="button-container">
+                        <button type="submit" class="btn btn-primary">Registrarse</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    [Parameter] public string Title { get; set; }
+    [Parameter] public string Message { get; set; }
+
+    private void ClosePopup()
+    {
+        IsVisible = false;
+        OnClose.InvokeAsync(false);
+        register = new RegisterDTO();
+    }
+
+    private RegisterDTO register = new RegisterDTO();
+
+    private async Task HandleValidSubmit()
+    {
+        var result = await JS.InvokeAsync<object>("registerUser", register.Correo, register.Contrasena, register.Nombre, register.Apellidos, register.Continente);
+        if (result is IDictionary<string, object> dict && dict.ContainsKey("error"))
+        {
+            var errorMessage = dict["error"].ToString();
+            Console.WriteLine($"Error: {errorMessage}");
+            await Swal.FireAsync("Oops...", "Something went wrong!", "error");
+        }
+        else
+        {
+            await Swal.FireAsync("Usuario creado correctamente");
+            ClosePopup();
+        }
+    }
+}
+
+<style>
+    .form-scroll-container {
+        max-height: 650px; /* Ajusta según sea necesario */
+        overflow-y: auto; /* Permite desplazamiento vertical */
+        margin-bottom: 1rem; /* Espacio inferior entre el formulario y el botón cerrar */
+    }
+</style>

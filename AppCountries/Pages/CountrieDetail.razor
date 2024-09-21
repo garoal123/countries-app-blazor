@@ -1,0 +1,65 @@
+﻿@page "/country/{Cca2}"
+@using Microsoft.AspNetCore.Authorization;
+@using QuickType;
+@inject CountriesService countriesService
+@inject NavigationManager NavigationManager
+@inject NavigationHistoryService NavigationHistoryService
+@attribute [Authorize]
+<PageTitle>Country Details</PageTitle>
+
+<div class="country-details">
+    <a href="javascript:void(0)" @onclick="GoBack" class="back-button">
+        <img src="https://cdn1.iconfinder.com/data/icons/lightly-selected/30/back-alt-480.png" alt="Back" class="back-image" />
+    </a>
+    <h1>Country Details</h1>
+    <p>Country Code: @Cca2</p>
+
+    @if (country != null)
+    {
+        <div class="country-info">
+            <img src=@country.Flags.Png alt="Bandera de @country.Name?.Common" class="flag-image" />
+            <div class="info">
+                <h2>@country.Name?.Common</h2>
+                <p><b>Official Name: </b>@country.Name?.Official</p>
+                <p><b>Capital: </b>@country.Capital?.FirstOrDefault()</p>
+                <p><b>Population: </b>@country.Population</p>
+                <p><b>Region: </b>@country.Region</p>
+                <p><b>Subregion: </b>@country.Subregion</p>
+                <p><b>Languages: </b>@string.Join(", ", country.Languages)</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>No data...</p>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Cca2 { get; set; }
+    private countryV3? country;
+    private bool isLoading = true; // Estado de carga
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var countriesInEurope = await countriesService.GetCountriesByCode(Cca2);
+            country = countriesInEurope?.FirstOrDefault(c => c.Cca2 == Cca2);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar los países: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        // Aquí puedes usar NavigationManager para volver a la página anterior
+        NavigationManager.NavigateTo("/Index"); // Cambia "/previousPage" por la ruta que necesites
+    }
+}
