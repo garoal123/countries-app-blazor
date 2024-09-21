@@ -68,11 +68,11 @@
         {
             Console.WriteLine($"User ID: {userResult.uid}");
 
-            await LoadDocument(userResult.uid, userResult.email);
+            await LoadInfoUser(userResult.uid, userResult.email);
         }
     }
 
-    private async Task LoadDocument(string documentId, string mail)
+    private async Task LoadInfoUser(string documentId, string mail)
     {
         Console.WriteLine($"Cargando documento de la colección: Usuarios, ID: {documentId}");
         SesionDTO sesionDTO = new SesionDTO();
@@ -87,7 +87,7 @@
             documentData = JsonSerializer.Deserialize<UserDocument>(result);
             // Guardar el UID en localStorage
             await LocalStorage.SetItemAsync("userId", documentId);
-            sesionDTO.Nombre = (documentData.Nombre ?? "") + " " + (documentData.Apellidos ?? "");
+            sesionDTO.Nombre = (documentData?.Nombre ?? "") + " " + (documentData?.Apellidos ?? "");
             sesionDTO.Correo = mail;
             sesionDTO.Rol = documentData.IsAdmin ? "Administrador" : "Visita";
             sesionDTO.Region = documentData.IsAdmin ? "all" : documentData.Continente;
