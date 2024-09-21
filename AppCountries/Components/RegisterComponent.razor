@@ -1,6 +1,7 @@
 ﻿@namespace BlazorLogin.Components
 @inject IJSRuntime JS
 @inject SweetAlertService Swal
+@inject FirebaseService FirebaseService
 <div class="popup-overlay" @onclick="ClosePopup" style="display:@(IsVisible ? "flex" : "none")">
     <div class="popup-content" @onclick:stopPropagation>
         <button @onclick="ClosePopup" class="close-button">X</button>
@@ -51,11 +52,11 @@
                     <InputSelect @bind-Value="register.Continente" class="form-control">
                         <option value="">Seleccione un continente</option>
                         <option value="Asia">Asia</option>
-                        <option value="Europa">Asia</option>
-                        <option value="América">Americas</option>
-                        <option value="África">Africa</option>
-                        <option value="Oceanía">Antarctic</option>
-                        <option value="Oceanía">Oceania</option>
+                        <option value="Europe">Europa</option>
+                        <option value="Americas">América</option>
+                        <option value="Africa">África</option>
+                        <option value="Antarctic">Antarctic</option>
+                        <option value="Oceania">Oceanía</option>
                     </InputSelect>
                     <ValidationMessage For="@(() => register.Continente)" />
                 </div>
@@ -93,7 +94,7 @@
 
     private async Task HandleValidSubmit()
     {
-        var result = await JS.InvokeAsync<object>("registerUser", register.Correo, register.Contrasena, register.Nombre, register.Apellidos, register.Continente);
+        var result = await FirebaseService.RegisterUserAsync(register.Correo, register.Contrasena, register.Nombre, register.Apellidos, register.Continente);
         if (result is IDictionary<string, object> dict && dict.ContainsKey("error"))
         {
             var errorMessage = dict["error"].ToString();

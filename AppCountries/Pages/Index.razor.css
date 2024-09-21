@@ -1,0 +1,99 @@
+﻿.countries__main {
+    height: fit-content;
+    width: 100%;
+}
+
+.countries__content-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    max-width: 1024px;
+    width: 90%;
+}
+
+.countries__title {
+    margin-top: 1em;
+    font-size: 2rem;
+    font-weight: 900;
+    color: white;
+}
+
+.countries__list-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-gap: 1em;
+    margin: 1em 0 2em;
+}
+
+.countries__list-item {
+    background-color: #202427;
+    border-radius: 0.5em;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+    cursor: pointer;
+    transition: background-color 0.1s ease-in-out;
+    &:hover
+
+{
+    background-color: #353a3e;
+}
+
+}
+
+.countries__list-item__common-name {
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.countries__list-item__official-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.filter-section {
+    display: flex;
+    align-items: center; /* Alinea todos los elementos al centro verticalmente */
+    gap: 1rem; /* Espacio entre los elementos */
+    margin: 1rem 0; /* Margen superior e inferior */
+}
+
+.element-shadow {
+    padding: 2rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    flex: 1; /* Para que ocupe el espacio disponible */
+    height: 40px; /* Altura específica para el input */
+}
+
+.continent-select-container {
+    display: flex;
+    flex-direction: column; /* Coloca la etiqueta encima del select */
+}
+
+.label-continent {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0.25rem; /* Espacio entre la etiqueta y el select */
+}
+
+.select-continent {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    cursor: pointer;
+    height: 40px; /* Altura específica para el select */
+    transition: border-color 0.2s;
+}
+
+    .select-continent:hover {
+        border-color: #888;
+    }

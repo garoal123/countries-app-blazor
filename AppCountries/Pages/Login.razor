@@ -2,11 +2,18 @@
 @layout LoginLayout
 @inject HttpClient httpClient
 @inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider autenticacionProvider
 @inject IJSRuntime JS
+@inject SweetAlertService Swal
 @using System.Text.Json;
 @using BlazorLogin.Shared
+@using Blazored.LocalStorage;
 @using BlazorLogin.Components  <!-- Asegúrate de usar el namespace correcto -->
 @inject FirebaseService FirebaseService
+@inject ILocalStorageService LocalStorage // Aquí se inyecta ILocalStorageService
+@using BlazorLogin.Client.Extensiones
+
 <div class="login-container">
     <div class="login-card">
         <div class="text-center mb-4">
@@ -44,47 +51,56 @@
 
 @code {
     private LoginDTO login = new LoginDTO();
-
-    private async Task LoginUser()
-    {
-        var jsonResult = await JS.InvokeAsync<string>("loginWithEmailPassword", login.Correo, login.Clave);
-
-        // Deserializar el resultado
-        var userResult = JsonSerializer.Deserialize<LoginResult>(jsonResult);
-
-        if (userResult.error != null)
-        {
-            // Maneja el error
-            Console.WriteLine($"Error: {userResult.error}");
-        }
-        else
-        {
-            // Maneja el usuario autenticado
-            Console.WriteLine($"User ID: {userResult.uid}");
-            Navigation.NavigateTo("/Index");
-        }
-    }
-
+    private UserDocument? documentData;
     private async Task Logins()
     {
+
         var result = await FirebaseService.LoginWithEmailPasswordAsync(login.Correo, login.Clave);
-        // Manejar el resultado
         Console.WriteLine(result);
-        // Deserializar el resultado
         var userResult = JsonSerializer.Deserialize<LoginResult>(result);
 
         if (userResult.error != null)
         {
-            // Maneja el error
             Console.WriteLine($"Error: {userResult.error}");
+            await Swal.FireAsync("Oops...", userResult.error, "error");
         }
         else
         {
-            // Maneja el usuario autenticado
             Console.WriteLine($"User ID: {userResult.uid}");
+
+            await LoadDocument(userResult.uid, userResult.email);
+        }
+    }
+
+    private async Task LoadDocument(string documentId, string mail)
+    {
+        Console.WriteLine($"Cargando documento de la colección: Usuarios, ID: {documentId}");
+        SesionDTO sesionDTO = new SesionDTO();
+
+        var result = await FirebaseService.GetDocumentByIdAsync(documentId);
+
+        Console.WriteLine($"Resultado de Firestore: {result}");
+
+        // Deserializa el resultado al objeto UserDocument
+        try
+        {
+            documentData = JsonSerializer.Deserialize<UserDocument>(result);
+            // Guardar el UID en localStorage
+            await LocalStorage.SetItemAsync("userId", documentId);
+            sesionDTO.Nombre = (documentData.Nombre ?? "") + " " + (documentData.Apellidos ?? "");
+            sesionDTO.Correo = mail;
+            sesionDTO.Rol = documentData.IsAdmin ? "Administrador" : "Visita";
+            sesionDTO.Region = documentData.IsAdmin ? "all" : documentData.Continente;
+            var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+            await autenticacionExt.ActualizarEstadoAutenticacion(sesionDTO);
+
+            // Redirigir al usuario
             Navigation.NavigateTo("/Index");
         }
-        
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Error al deserializar: {ex.Message}");
+        }
     }
 
     private bool showPopup = false;

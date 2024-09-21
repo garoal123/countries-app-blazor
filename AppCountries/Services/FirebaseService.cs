@@ -17,7 +17,7 @@ public class FirebaseService
     }
 
     // Método para registrar un nuevo usuario
-    public async Task<string> RegisterUserAsync(string email, string password, string nombre, string apellido, string continente)
+    public async Task<object> RegisterUserAsync(string email, string password, string nombre, string apellido, string continente)
     {
         return await _jsRuntime.InvokeAsync<string>("registerUser", email, password, nombre, apellido, continente);
     }

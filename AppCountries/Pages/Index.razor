@@ -1,47 +1,154 @@
 ﻿@page "/Index"
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization;
 @inject IJSRuntime JSRuntime
+@inject FirebaseService FirebaseService
+@inject NavigationManager NavigationManager
 @using System.Text.Json
 @using BlazorLogin.Shared
+@using Blazored.LocalStorage;
+@inject IToastService toastService
+@inject CountriesService countriesService
+@inject ILocalStorageService LocalStorage
+@using BlazorLogin.Client.Extensiones;
+@inject AuthenticationStateProvider autenticacionProvider
+@using QuickType;
+@attribute [Authorize]
 <PageTitle>Index</PageTitle>
-
-@if (documentData != null)
+<AuthorizeView>
+    <Authorized>
+        <h1>Bienvenido @context.User.Identity!.Name</h1>
+    </Authorized>
+</AuthorizeView>
+@if (isLoading)
 {
-    <div>
-        <p><strong>Nombre:</strong> @documentData.Nombre</p>
-        <p><strong>Apellido:</strong> @documentData.Apellidos</p>
-        <p><strong>Continente:</strong> @documentData.Continente</p>
-    </div>
+    <p>Loading...</p>
+}
+else if (filterCountryList == null)
+{
+    <p>Error loading countries. Please try again later.</p>
+}
+else if (filterCountryList.Count == 0)
+{
+    <p>No countries found.</p>
 }
 else
 {
-    <p>Cargando datos...</p>
+    <div class="countries__content-container">
+        <h1 class="countries__title">Countries:</h1>
+
+        <section class="filter-section">
+            <input class="element-shadow"
+                   type="search"
+                   placeholder="Search for a country..."
+                   @oninput="SearchCoutry" />
+
+            <AuthorizeView Roles="Administrador,Supervisor">
+                <Authorized>
+                    <div class="continent-select-container">
+                        <label for="continentSelect" class="label-continent">Select Continent:</label>
+                        <select id="continentSelect" @onchange="SelectRegion" class="select-continent">
+                            <option value="">All Continents</option>
+                            @foreach (var continent in Continents)
+                            {
+                                <option value="@continent">@continent</option>
+                            }
+                        </select>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+        </section>
+
+
+        @if (filterCountryList.Count > 0)
+        {
+            <div class="countries__list-container">
+                @foreach (var country in filterCountryList)
+                {
+                    <div class="countries__list-item" @onclick="() => NavigateToCountryDetails(country.Cca2)">
+                        <h2 class="countries__list-item__common-name">@country.Name?.Common <span>@country.Flag</span></h2>
+                        <h5 class="countries__list-item__official-name">@country.Name?.Official</h5>
+                        <p><b>Capital: </b><h5 class="countries__list-item__capital-name">@country.Capital?.FirstOrDefault()</h5></p>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>No countries found.</p>
+        }
+    </div>
 }
 
+
 @code {
-    private UserDocument documentData;
+    private UserDocument? documentData;
+    private bool isLoading = true;
+    private string Locality = string.Empty;
+    List<countryV3> filterCountryList = new();
+    List<countryV3> countries = new();
+    private string[] Continents = { "Africa", "Americas", "Antarctic", "Asia", "Europe", "Oceania" }; //
 
-   private async Task LoadDocument(string documentId)
+    private async Task getCountries()
     {
-        Console.WriteLine($"Cargando documento de la colección: Usuarios, ID: {documentId}");
-
-        var result = await JSRuntime.InvokeAsync<string>("getDocumentById", documentId);
-
-        Console.WriteLine($"Resultado de Firestore: {result}");
-
-        // Deserializa el resultado al objeto UserDocument
         try
         {
-            documentData = JsonSerializer.Deserialize<UserDocument>(result);
-            Console.WriteLine($"Datos deserializados: {documentData.Nombre}, {documentData.Apellidos}, {documentData.Continente}, {documentData.IsAdmin}");
+            var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+            Locality = await autenticacionExt.ObtenerLocalidadAsync();
+
+            var countriesInEurope = (await countriesService.GetCountriesByRegion(Locality))
+            .OrderBy(c => c.Name.Common);
+
+            filterCountryList = countries = countriesInEurope.ToList();
         }
-        catch (JsonException ex)
+        catch (Exception ex)
         {
-            Console.WriteLine($"Error al deserializar: {ex.Message}");
+            Console.WriteLine($"Error al cargar los países: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadDocument("OirTrOZebBSzpB5JfxDEgtoJFJ33"); // Reemplaza con el ID real del documento
+
+        var userId = await LocalStorage.GetItemAsync<string>("userId");
+        await getCountries(); // Reemplaza con el ID real del documento
+    }
+
+    private void SearchCoutry(ChangeEventArgs e)
+    {
+        filterCountryList = countries
+            .Where(country =>
+                country.Name?.Common?.Contains(e.Value.ToString(), StringComparison.OrdinalIgnoreCase) == true)
+            .ToList();
+    }
+
+    private void SelectRegion(ChangeEventArgs e)
+    {
+        var selectedContinent = e.Value.ToString();
+        if (string.IsNullOrEmpty(selectedContinent))
+        {
+            filterCountryList = countries;
+        }
+        else
+        {
+            // Convertimos el valor del enum Continent a string para compararlo
+            /*filterCountryList = countries
+                .Where(country => country.Continents.Any(continent =>
+                    continent.ToString().Equals(selectedContinent, StringComparison.OrdinalIgnoreCase)))
+                .ToList();*/
+            filterCountryList = countries.Where(country => country.Region.ToString().Contains(e.Value.ToString(), StringComparison.OrdinalIgnoreCase)).ToList();
+
+        }
+    }
+
+
+
+    private void NavigateToCountryDetails(string cca2)
+    {
+        NavigationManager.NavigateTo($"country/{cca2}");
     }
 }
