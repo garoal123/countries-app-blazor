@@ -30,5 +30,6 @@ namespace BlazorLogin.Shared
         public string Nombre { get; set; }
         public string Apellidos { get; set; }
         public string Continente { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

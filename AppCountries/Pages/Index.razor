@@ -32,7 +32,7 @@ else
         try
         {
             documentData = JsonSerializer.Deserialize<UserDocument>(result);
-            Console.WriteLine($"Datos deserializados: {documentData.Nombre}, {documentData.Apellidos}, {documentData.Continente}");
+            Console.WriteLine($"Datos deserializados: {documentData.Nombre}, {documentData.Apellidos}, {documentData.Continente}, {documentData.IsAdmin}");
         }
         catch (JsonException ex)
         {
