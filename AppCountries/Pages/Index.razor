@@ -34,50 +34,78 @@ else if (filterCountryList.Count == 0)
 }
 else
 {
-    <div class="countries__content-container">
-        <h1 class="countries__title">Countries:</h1>
+<div class="countries__content-container">
+    <h1 class="countries__title">Countries:</h1>
 
-        <section class="filter-section">
-            <input class="element-shadow"
-                   type="search"
-                   placeholder="Search for a country..."
-                   @oninput="SearchCoutry" />
+    <section class="filter-section">
+        <input class="element-shadow"
+               type="search"
+               placeholder="Search for a country..."
+               @oninput="SearchCoutry" />
 
-            <AuthorizeView Roles="Administrador,Supervisor">
-                <Authorized>
-                    <div class="continent-select-container">
-                        <label for="continentSelect" class="label-continent">Select Continent:</label>
-                        <select id="continentSelect" @onchange="SelectRegion" class="select-continent">
-                            <option value="">All Continents</option>
-                            @foreach (var continent in Continents)
-                            {
-                                <option value="@continent">@continent</option>
-                            }
-                        </select>
-                    </div>
-                </Authorized>
-            </AuthorizeView>
-        </section>
+        <AuthorizeView Roles="Administrador,Supervisor">
+            <Authorized>
+                <div class="continent-select-container">
+                    <label for="continentSelect" class="label-continent">Select Continent:</label>
+                    <select id="continentSelect" @onchange="SelectRegion" class="select-continent">
+                        <option value="">All Continents</option>
+                        @foreach (var continent in Continents)
+                        {
+                            <option value="@continent">@continent</option>
+                        }
+                    </select>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </section>
 
 
-        @if (filterCountryList.Count > 0)
-        {
-            <div class="countries__list-container">
-                @foreach (var country in filterCountryList)
-                {
-                    <div class="countries__list-item" @onclick="() => NavigateToCountryDetails(country.Cca2)">
-                        <h2 class="countries__list-item__common-name">@country.Name?.Common <span>@country.Flag</span></h2>
-                        <h5 class="countries__list-item__official-name">@country.Name?.Official</h5>
-                        <p><b>Capital: </b><h5 class="countries__list-item__capital-name">@country.Capital?.FirstOrDefault()</h5></p>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <p>No countries found.</p>
-        }
-    </div>
+    @if (filterCountryList.Count > 0)
+    {
+        <!-- div class="countries__list-container">
+            @foreach (var country in filterCountryList)
+            {
+                <div class="countries__list-item" @onclick="() => NavigateToCountryDetails(country.Cca2)">
+                    <h2 class="countries__list-item__common-name">@country.Name?.Common <span>@country.Flag</span></h2>
+                    <h5 class="countries__list-item__official-name">@country.Name?.Official</h5>
+                    <p><b>Capital: </b><h5 class="countries__list-item__capital-name">@country.Capital?.FirstOrDefault()</h5></p>
+                </div>
+            }
+        </div -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Bandera</th>
+                        <th scope="col">Idd</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Capital</th>
+                        <th scope="col">Población</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var country in filterCountryList)
+                    {
+                        <tr @onclick="() => NavigateToCountryDetails(country.Cca2)">
+                            <td>
+                                <img src=@country.Flags.Png alt="Flag" style="width: 50px; height: auto;" />
+                            </td>
+                            <td>@country.Idd.Root@(country.Idd.Suffixes?.FirstOrDefault() ?? "")</td>
+                            <td>@country.Name?.Common</td>
+                            <td>@country.Capital?.FirstOrDefault()</td>
+                            <td>@country.Population.ToString("N0")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    }
+    else
+    {
+        <p>No countries found.</p>
+    }
+</div>
 }
 
 
