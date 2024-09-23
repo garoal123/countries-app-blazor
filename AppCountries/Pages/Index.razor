@@ -7,6 +7,7 @@
 @using System.Text.Json
 @using BlazorLogin.Shared
 @using Blazored.LocalStorage;
+@using System.Globalization;
 @inject IToastService toastService
 @inject CountriesService countriesService
 @inject ILocalStorageService LocalStorage
@@ -86,7 +87,7 @@ else
                                 <td>@country.Idd.Root@(country.Idd.Suffixes?.FirstOrDefault() ?? "")</td>
                                 <td>@country.Name?.Common</td>
                                 <td>@country.Capital?.FirstOrDefault()</td>
-                                <td>@country.Population.ToString("N0")</td>
+                                <td>@country.Population.ToString("N0", CultureInfo.GetCultureInfo("en-US"))</td>
                             </tr>
                         }
                     </tbody>

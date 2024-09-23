@@ -1,5 +1,5 @@
 ﻿.country-details {
-    background-color: #574a77; /* Fondo claro */
+    background-color: #ffffff; /* Fondo claro */
     border-radius: 8px; /* Bordes redondeados */
     padding: 20px; /* Espaciado interno */
     max-width: 1000px; /* Ancho máximo */
@@ -21,8 +21,9 @@
 }
 
 .country-info {
-    display: flex; /* Usar flexbox */
-    align-items: center; /* Centrar verticalmente */
+    display: flex; /* Usar flexbox para alinear la bandera y la info en fila */
+    align-items: flex-start; /* Alinear la información al inicio */
+    justify-content: space-between; /* Espacio entre la bandera y la info */
 }
 
 .flag-image {
@@ -39,4 +40,10 @@
 h1 {
     text-align: center; /* Centrar el título */
     color: #007BFF; /* Color del título */
+}
+
+.map-container {
+    margin-top: 20px; /* Espaciado superior */
+    width: 100%; /* Ancho completo */
+    height: 450px; /* Altura del mapa */
 }
