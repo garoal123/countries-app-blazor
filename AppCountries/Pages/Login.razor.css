@@ -3,7 +3,7 @@
     justify-content: center; /* Centrar horizontalmente */
     align-items: center; /* Centrar verticalmente */
     height: 100vh; /* Altura completa de la ventana */
-    background-color: #f8f9fa; /* Fondo claro */
+    background-color: #dedede; /* Fondo claro */
 }
 
 .login-card {
@@ -14,9 +14,14 @@
     width: 100%; /* Ancho completo */
     max-width: 400px; /* Ancho máximo */
 }
+.btn-primary {
+    color: #fff;
+    background-color: #142f56;
+    border-color: #1861ac;
+}
 
 h3 {
-    color: #007BFF; /* Color del título */
+    color: #142f56; /* Color del título */
 }
 
 .btn-block {
