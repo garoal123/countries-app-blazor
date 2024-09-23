@@ -1,10 +1,24 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization;
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
         <a class="navbar-brand" href="">AppCountries</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
+</div>
+
+<!-- Perfil de usuario -->
+<div class="user-profile-container px-3 py-2 d-flex align-items-center">
+    <img src="/images/profile.jpg" alt="User Photo" class="rounded-circle" width="50" height="50" />
+    <AuthorizeView>
+        <Authorized>
+            <div class="ms-2">
+                <p class="mb-0 text-white">@context.User.Identity!.Name</p>
+            </div>
+        </Authorized>
+    </AuthorizeView>
 </div>
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
@@ -27,6 +41,27 @@
     </nav>
 </div>
 
+<style>
+    .user-profile-container {
+        background-color: #00203f; /* Ajusta según el fondo de tu navbar */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Línea divisoria */
+    }
+
+    .nav-scrollable {
+        margin-top: 1rem; /* Da espacio al contenido debajo del perfil */
+    }
+
+    .nav-item {
+        margin-top: 0.5rem; /* Espacio entre los elementos del menú */
+    }
+
+    .navbar-brand {
+        font-size: 1.25rem; /* Ajustar tamaño del título si es necesario */
+    }
+</style>
+
+
+
 @code {
     private bool collapseNavMenu = true;
 
@@ -37,4 +72,3 @@
         collapseNavMenu = !collapseNavMenu;
     }
 }
-
