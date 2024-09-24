@@ -153,11 +153,15 @@
 }
 
 .country-card {
+    background-color: #4c607d;
+    border-radius: 0.5em;
+    color: white;
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 5px;
     text-align: center;
-    transition: box-shadow 0.3s ease;
+    transition: background-color 0.1s ease-in-out;
+    &:hover
 }
 
     .country-card:hover {
