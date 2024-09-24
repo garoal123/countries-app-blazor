@@ -14,6 +14,8 @@
 @using BlazorLogin.Client.Extensiones;
 @inject AuthenticationStateProvider autenticacionProvider
 @using QuickType;
+@using AppCountries.Utils
+@using AppCountries.Constants
 @attribute [Authorize]
 <PageTitle>Index</PageTitle>
 
@@ -44,11 +46,12 @@ else
                         <label for="continentSelect" class="label-continent">Seleccionar Continente:</label>
                         <select id="continentSelect" @onchange="SelectRegion" class="select-continent">
                             <option value="">Todos</option>
-                            @foreach (var continent in Continents)
+                            @foreach (var continent in Constants.Continents)
                             {
-                                <option value="@continent">@continent</option>
+                                <option value="@continent">@Utils.ContinentTranslations[continent]</option>
                             }
                         </select>
+
                     </div>
                 </Authorized>
             </AuthorizeView>
@@ -64,10 +67,10 @@ else
                 </select>
             </div>
             <div class="view-toggle-buttons" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 36px;">
-                <button @onclick="() => modeGridAndList('g')" class="btn btn-info" style="background-color: #142f56; color: #ffffff;">
+                <button @onclick="() => modeGridAndList(false)" class="btn btn-info" style="background-color: #142f56; color: #ffffff;">
                     <i class="fa fa-th"></i>
                 </button>
-                <button @onclick="() => modeGridAndList('l')" class="btn btn-info" style="background-color: #142f56; color: #ffffff;">
+                <button @onclick="() => modeGridAndList(true)" class="btn btn-info" style="background-color: #142f56; color: #ffffff;">
                     <i class="fa fa-list"></i>
                 </button>
             </div>
@@ -135,7 +138,6 @@ else
     private string Locality = string.Empty;
     List<countryV3> filterCountryList = new();
     List<countryV3> countries = new();
-    private string[] Continents = { "Africa", "Americas", "Antarctic", "Asia", "Europe", "Oceania" };
     private string selectedOrder = "az"; // Orden por defecto A-Z
 
     private async Task getCountries()
@@ -210,10 +212,8 @@ else
         NavigationManager.NavigateTo($"country/{cca2}");
     }
 
-    private void modeGridAndList(char type)
+    private void modeGridAndList(bool list)
     {
-        isGrid = type == 'l' ? false : true; // Cambia 'l' por 'g' si quieres que 'g' represente grid.
+        isGrid = list ? false : true;
     }
-
-
 }

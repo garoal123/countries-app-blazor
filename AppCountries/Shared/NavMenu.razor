@@ -1,5 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Components.Authorization;
+@using BlazorLogin.Client.Extensiones;
+@inject AuthenticationStateProvider autenticacionProvider
+@inject NavigationManager Navigation
+@using AppCountries.Utils
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <a class="navbar-brand" href="">AppCountries</a>
@@ -16,6 +21,7 @@
         <Authorized>
             <div class="ms-2">
                 <p class="mb-0 text-white">@context.User.Identity!.Name</p>
+                <p class="mb-0 text-white">@Locality</p>
             </div>
         </Authorized>
     </AuthorizeView>
@@ -25,50 +31,47 @@
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/Index" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+                <span class="oi oi-home" aria-hidden="true"></span> Inicio
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </div>
+
+        <!-- Agregar más elementos del menú aquí -->
+        <!-- Botón de cerrar sesión -->
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3 mt-auto">
+                    <button class="btn btn-link text-white" @onclick="CerrarSesion">
+                        <span class="oi oi-account-logout" aria-hidden="true"></span> Cerrar sesión
+                    </button>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     </nav>
 </div>
 
-<style>
-    .user-profile-container {
-        background-color: #00203f; /* Ajusta según el fondo de tu navbar */
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Línea divisoria */
-    }
-
-    .nav-scrollable {
-        margin-top: 1rem; /* Da espacio al contenido debajo del perfil */
-    }
-
-    .nav-item {
-        margin-top: 0.5rem; /* Espacio entre los elementos del menú */
-    }
-
-    .navbar-brand {
-        font-size: 1.25rem; /* Ajustar tamaño del título si es necesario */
-    }
-</style>
-
-
-
 @code {
     private bool collapseNavMenu = true;
+    private string Locality = string.Empty;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+        Locality = await autenticacionExt.ObtenerLocalidadAsync();
+        string continenteEspanol = Utils.TraducirContinente(Locality);
+        Locality = continenteEspanol;
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task CerrarSesion()
+    {
+        var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+        await autenticacionExt.ActualizarEstadoAutenticacion(null); // Elimina la sesión
+        Navigation.NavigateTo("/", true); // Redirige a la página de login
     }
 }
