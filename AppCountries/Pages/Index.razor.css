@@ -98,3 +98,50 @@
     .select-continent:hover {
         border-color: #888;
     }
+/* Estilos generales */
+.search-container {
+    display: flex;
+    align-items: center;
+    background-color: #142f56; /* Color gris oscuro del fondo */
+    border-radius: 50px; /* Redondear esquinas */
+    padding: 10px;
+    width: 350px; /* Ajusta el ancho según tu preferencia */
+    border: none;
+    position: absolute; /* Fijar la posición */
+    top: 65px; /* Distancia desde el borde superior */
+    /*background-color: #E74C3C;  Color rojo de fondo */
+    z-index: 1000; /* Asegura que esté sobre otros elementos */
+    right: 65px;
+}
+
+.search-input {
+    background-color: #142f56; /* Fondo gris oscuro */
+    border: none;
+    padding: 5px;
+    width: 100%;
+    border-radius: 50px; /* Redondear esquinas */
+    color: #ccc; /* Color de texto */
+    font-size: 16px;
+    outline: none;
+}
+
+    .search-input::placeholder {
+        color: #a3a3a3; /* Color del placeholder (gris claro) */
+    }
+
+.search-btn {
+    background-color: white; /* Fondo blanco del botón */
+    border: none;
+    padding: 10px;
+    border-radius: 50%; /* Botón redondeado */
+    cursor: pointer;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .search-btn i {
+        color: #355179; 
+        font-size: 18px;
+    }

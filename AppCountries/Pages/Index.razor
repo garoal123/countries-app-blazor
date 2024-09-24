@@ -30,17 +30,19 @@ else
     <h1 class="countries__title">Countries:</h1>
 
     <section class="filter-section">
-        <input class="element-shadow"
-               type="search"
-               placeholder="Search for a country..."
-               @oninput="SearchCoutry" />
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Buscar..." @oninput="SearchCoutry" />
+            <button class="search-btn">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
 
         <AuthorizeView Roles="Administrador,Supervisor">
             <Authorized>
                 <div class="continent-select-container">
                     <label for="continentSelect" class="label-continent">Seleccionar Continente:</label>
                     <select id="continentSelect" @onchange="SelectRegion" class="select-continent">
-                        <option value="">All Continents</option>
+                        <option value="">Todos</option>
                         @foreach (var continent in Continents)
                         {
                             <option value="@continent">@continent</option>
