@@ -16,6 +16,7 @@
 @using QuickType;
 @attribute [Authorize]
 <PageTitle>Index</PageTitle>
+
 @if (isLoading)
 {
     <p>Loading...</p>
@@ -26,89 +27,115 @@ else if (filterCountryList == null)
 }
 else
 {
-<div class="countries__content-container">
-    <h1 class="countries__title">Countries:</h1>
+    <div class="countries__content-container">
+        <h1 class="countries__title">Countries:</h1>
 
-    <section class="filter-section">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Buscar..." @oninput="SearchCoutry" />
-            <button class="search-btn">
-                <i class="fa fa-search"></i>
-            </button>
-        </div>
+        <section class="filter-section">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Buscar..." @oninput="SearchCoutry" />
+                <button class="search-btn">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
 
-        <AuthorizeView Roles="Administrador,Supervisor">
-            <Authorized>
-                <div class="continent-select-container">
-                    <label for="continentSelect" class="label-continent">Seleccionar Continente:</label>
-                    <select id="continentSelect" @onchange="SelectRegion" class="select-continent">
-                        <option value="">Todos</option>
-                        @foreach (var continent in Continents)
-                        {
-                            <option value="@continent">@continent</option>
-                        }
-                    </select>
-                </div>
-            </Authorized>
-        </AuthorizeView>
+            <AuthorizeView Roles="Administrador,Supervisor">
+                <Authorized>
+                    <div class="continent-select-container">
+                        <label for="continentSelect" class="label-continent">Seleccionar Continente:</label>
+                        <select id="continentSelect" @onchange="SelectRegion" class="select-continent">
+                            <option value="">Todos</option>
+                            @foreach (var continent in Continents)
+                            {
+                                <option value="@continent">@continent</option>
+                            }
+                        </select>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
 
-        <!-- Agregamos el select para ordenar alfabéticamente -->
-        <div class="continent-select-container">
-            <label for="continentSelect" class="label-continent">Ordenar por:</label>
-            <select id="orderSelect" @onchange="OrderCountries" class="select-continent">
-                <option value="az">A-Z</option>
-                <option value="za">Z-A</option>
-                <option value="population-asc">Menor población</option>
-                <option value="population-desc">Mayor población</option>
-            </select>
-        </div>
-    </section>
+            <!-- Select para ordenar alfabéticamente -->
+            <div class="continent-select-container">
+                <label for="orderSelect" class="label-continent">Ordenar por:</label>
+                <select id="orderSelect" @onchange="OrderCountries" class="select-continent">
+                    <option value="az">A-Z</option>
+                    <option value="za">Z-A</option>
+                    <option value="population-asc">Menor población</option>
+                    <option value="population-desc">Mayor población</option>
+                </select>
+            </div>
+            <div class="view-toggle-buttons" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 36px;">
+                <button @onclick="() => modeGridAndList('l')" class="btn btn-info">
+                    <i class="fa fa-list"></i>
+                </button>
+                <button @onclick="() => modeGridAndList('g')" class="btn btn-info">
+                    <i class="fa fa-th"></i>
+                </button>
+            </div>
 
-    @if (filterCountryList.Count > 0)
-    {
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th scope="col">Bandera</th>
-                        <th scope="col">Idd</th>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Capital</th>
-                        <th scope="col">Población</th>
-                    </tr>
-                </thead>
-                <tbody>
+        </section>
+
+        @if (filterCountryList.Count > 0)
+        {
+            @if (isGrid) // Renderizar como grid
+            {
+                <div class="countries-grid">
                     @foreach (var country in filterCountryList)
                     {
-                        <tr @onclick="() => NavigateToCountryDetails(country.Cca2)">
-                            <td>
-                                <img src=@country.Flags.Png alt="Flag" style="width: 50px; height: auto;" />
-                            </td>
-                            <td>@country.Idd.Root@(country.Idd.Suffixes?.FirstOrDefault() ?? "")</td>
-                            <td>@country.Name?.Common</td>
-                            <td>@country.Capital?.FirstOrDefault()</td>
-                            <td>@country.Population.ToString("N0", CultureInfo.GetCultureInfo("en-US"))</td>
-                        </tr>
+                        <div class="country-card" @onclick="() => NavigateToCountryDetails(country.Cca2)">
+                            <img src="@country.Flags.Png" alt="Flag" class="country-flag" />
+                            <div class="country-info">
+                                <h3>@country.Name?.Common</h3>
+                                <p>Capital: @country.Capital?.FirstOrDefault()</p>
+                                <p>Población: @country.Population.ToString("N0", CultureInfo.GetCultureInfo("en-US"))</p>
+                            </div>
+                        </div>
                     }
-                </tbody>
-            </table>
-        </div>
-    }
-    else
-    {
-        <p>Sin resultados</p>
-    }
-</div>
+                </div>
+            }
+            else // Renderizar como tabla
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">Bandera</th>
+                                <th scope="col">Idd</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Capital</th>
+                                <th scope="col">Población</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var country in filterCountryList)
+                            {
+                                <tr @onclick="() => NavigateToCountryDetails(country.Cca2)">
+                                    <td><img src="@country.Flags.Png" alt="Flag" style="width: 50px; height: auto;" /></td>
+                                    <td>@country.Idd.Root@(country.Idd.Suffixes?.FirstOrDefault() ?? "")</td>
+                                    <td>@country.Name?.Common</td>
+                                    <td>@country.Capital?.FirstOrDefault()</td>
+                                    <td>@country.Population.ToString("N0", CultureInfo.GetCultureInfo("en-US"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+        else
+        {
+            <p>Sin resultados</p>
+        }
+    </div>
 }
-
 
 @code {
     private UserDocument? documentData;
     private bool isLoading = true;
+    private bool isGrid = true;
     private string Locality = string.Empty;
     List<countryV3> filterCountryList = new();
     List<countryV3> countries = new();
-    private string[] Continents = { "Africa", "Americas", "Antarctic", "Asia", "Europe", "Oceania" }; //
+    private string[] Continents = { "Africa", "Americas", "Antarctic", "Asia", "Europe", "Oceania" };
     private string selectedOrder = "az"; // Orden por defecto A-Z
 
     private async Task getCountries()
@@ -119,7 +146,7 @@ else
             Locality = await autenticacionExt.ObtenerLocalidadAsync();
 
             var countriesInEurope = (await countriesService.GetCountriesByRegion(Locality))
-            .OrderBy(c => c.Name.Common);
+                .OrderBy(c => c.Name.Common);
 
             filterCountryList = countries = countriesInEurope.ToList();
         }
@@ -135,9 +162,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-
-        var userId = await LocalStorage.GetItemAsync<string>("userId");
-        await getCountries(); // Reemplaza con el ID real del documento
+        await LocalStorage.GetItemAsync<string>("userId");
+        await getCountries();
     }
 
     private void SearchCoutry(ChangeEventArgs e)
@@ -153,14 +179,9 @@ else
     private void SelectRegion(ChangeEventArgs e)
     {
         var selectedContinent = e.Value.ToString();
-        if (string.IsNullOrEmpty(selectedContinent))
-        {
-            filterCountryList = countries;
-        }
-        else
-        {
-            filterCountryList = countries.Where(country => country.Region.ToString().Contains(selectedContinent, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
+        filterCountryList = string.IsNullOrEmpty(selectedContinent)
+            ? countries
+            : countries.Where(country => country.Region.ToString().Contains(selectedContinent, StringComparison.OrdinalIgnoreCase)).ToList();
 
         ApplyOrder(); // Aplicar el orden después de filtrar por continente
     }
@@ -174,25 +195,25 @@ else
     // Aplica el orden actual a la lista filtrada
     private void ApplyOrder()
     {
-        if (selectedOrder == "az")
+        filterCountryList = selectedOrder switch
         {
-            filterCountryList = filterCountryList.OrderBy(c => c.Name.Common).ToList();
-        }
-        else if (selectedOrder == "za")
-        {
-            filterCountryList = filterCountryList.OrderByDescending(c => c.Name.Common).ToList();
-        }
-        else if (selectedOrder == "population-asc")
-        {
-            filterCountryList = filterCountryList.OrderBy(c => c.Population).ToList();
-        }
-        else if (selectedOrder == "population-desc")
-        {
-            filterCountryList = filterCountryList.OrderByDescending(c => c.Population).ToList();
-        }
+            "az" => filterCountryList.OrderBy(c => c.Name.Common).ToList(),
+            "za" => filterCountryList.OrderByDescending(c => c.Name.Common).ToList(),
+            "population-asc" => filterCountryList.OrderBy(c => c.Population).ToList(),
+            "population-desc" => filterCountryList.OrderByDescending(c => c.Population).ToList(),
+            _ => filterCountryList
+        };
     }
+
     private void NavigateToCountryDetails(string cca2)
     {
         NavigationManager.NavigateTo($"country/{cca2}");
     }
+
+    private void modeGridAndList(char type)
+    {
+        isGrid = type == 'l' ? false : true; // Cambia 'l' por 'g' si quieres que 'g' represente grid.
+    }
+
+
 }
