@@ -1,4 +1,9 @@
 {
+  "ApiUrls": {
+    "CountriesService": "https://restcountries.com/v3.1/",
+    "UserService": "https://api.usuarios.com/v1/",
+    "AuthService": "https://auth.miapp.com/"
+  },
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
